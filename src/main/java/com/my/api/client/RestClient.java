@@ -1,7 +1,7 @@
 package com.my.api.client;
 
+import com.my.api.auth.ApiAuth;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.ext.auth.authentication.Credentials;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.WebClient;
 import org.slf4j.Logger;
@@ -21,8 +21,8 @@ public class RestClient {
     this.webClient = webClient;
   }
 
-  public RestClient withBasicAuth(Credentials credentials){
-    httpRequest.authentication(credentials);
+  public RestClient withAuth(ApiAuth auth){
+    httpRequest.authentication(auth.getAuth());
     return this;
   }
 

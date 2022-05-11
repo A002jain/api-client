@@ -1,7 +1,7 @@
 package com.my.api.client;
 
+import com.my.api.auth.ApiAuth;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.authentication.Credentials;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
 import org.slf4j.Logger;
@@ -38,8 +38,8 @@ public class GraphqlClient {
     return this;
   }
 
-  public GraphqlClient withAuth(Credentials credentials){
-    restClient = restClient.withBasicAuth(credentials);
+  public GraphqlClient withAuth(ApiAuth auth){
+    restClient = restClient.withAuth(auth);
     return this;
   }
 

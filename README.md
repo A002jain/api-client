@@ -22,7 +22,7 @@ An api client which allow us to call rest or graphql api from java
     
     HttpClient.restClient()
         .get("/hello")
-    //    .withAuth(ApiAuth.getBasicAuth()) use env vars to pass username and password
+    //    .withAuth(new BasicAuth()) use env vars to pass username and password
         .withAuth(new UsernamePasswordCredentials(USERNAME, PASSWORD))
         .execute();
           
@@ -40,7 +40,7 @@ An api client which allow us to call rest or graphql api from java
     
     HttpClient.graphqlClient()
         .query("query{ allUser{ name } }")
-    //    .withAuth(ApiAuth.getBasicAuth()) use env vars to pass username and password
+    //    .withAuth(new BasicAuth()) use env vars to pass username and password
         .withAuth(new UsernamePasswordCredentials(USERNAME, PASSWORD))
         .variable("hash","enable")
         .variable("not","enable")
