@@ -2,11 +2,11 @@ package com.my.api.client;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.auth.authentication.Credentials;
-import io.vertx.ext.auth.authentication.UsernamePasswordCredentials;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.WebClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 
 public class RestClient {
@@ -21,12 +21,8 @@ public class RestClient {
     this.webClient = webClient;
   }
 
-  private Credentials getBasicAuth(){
-    return new UsernamePasswordCredentials("test","test");
-  }
-
-  public RestClient withBasicAuth(){
-    httpRequest.authentication(getBasicAuth());
+  public RestClient withBasicAuth(Credentials credentials){
+    httpRequest.authentication(credentials);
     return this;
   }
 
