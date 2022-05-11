@@ -16,7 +16,7 @@ An api client which allow us to call rest or graphql api from java
     ```text
     HttpClient.restClient()
         .get("/hello")
-        .execute();
+        .executeAsync();
           
     // with basic auth  
     
@@ -24,7 +24,7 @@ An api client which allow us to call rest or graphql api from java
         .get("/hello")
     //    .withAuth(new BasicAuth()) use env vars to pass username and password
         .withAuth(new UsernamePasswordCredentials(USERNAME, PASSWORD))
-        .execute();
+        .executeAsync();
           
     ```
     - graphql api
@@ -34,7 +34,7 @@ An api client which allow us to call rest or graphql api from java
         .query("query{ allUser{ name } }")
         .variable("has","enable")
         .variable("not","enable")
-        .execute();
+        .executeAsync();
     
     // with basic auth
     
@@ -44,5 +44,5 @@ An api client which allow us to call rest or graphql api from java
         .withAuth(new UsernamePasswordCredentials(USERNAME, PASSWORD))
         .variable("hash","enable")
         .variable("not","enable")
-        .execute();
+        .executeAsync();
     ```

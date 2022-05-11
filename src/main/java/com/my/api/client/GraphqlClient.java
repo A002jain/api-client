@@ -8,14 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class GraphqlClient {
 
-  private static final Logger logger = LoggerFactory.getLogger(GraphqlClient.class);
-  private RestClient restClient;
 
+  private static final Logger logger = LoggerFactory.getLogger(GraphqlClient.class);
   private final GraphqlPayloadBuilder graphqlPayloadBuilder = new GraphqlPayloadBuilder();
+  private static JsonObject response = new JsonObject();
+  private RestClient restClient;
 
   public GraphqlClient(WebClient webClient){
     this.restClient = new RestClient(webClient);
@@ -42,25 +47,56 @@ public class GraphqlClient {
     restClient = restClient.withAuth(auth);
     return this;
   }
-
-  public void execute(){
+  public void executeAsync(){
     JsonObject request = graphqlPayloadBuilder.getJsonObject();
-    execute(request);
+    executeAsync(request);
     graphqlPayloadBuilder.clear();
   }
 
-  public void execute(JsonObject request){
+  public void executeAsync(JsonObject request){
+    restClient.getHttpRequest()
+            .as(BodyCodec.jsonObject())
+            .sendJsonObject(request, ar -> {
+              if (ar.succeeded()) {
+                JsonObject response = ar.result().body();
+                logger.info("response = {}", response.encodePrettily());
+              } else {
+                ar.cause().printStackTrace();
+              }
+            });
+  }
+
+  public Map<String, Object> execute(){
+    JsonObject request = graphqlPayloadBuilder.getJsonObject();
+    JsonObject jsonResponse = execute(request);
+    graphqlPayloadBuilder.clear();
+    return jsonResponse.getMap();
+  }
+
+  public JsonObject execute(JsonObject request) {
+    CompletableFuture<JsonObject> response = new CompletableFuture<>();
+    try {
       restClient.getHttpRequest()
-      .as(BodyCodec.jsonObject())
-      .sendJsonObject(request, ar -> {
-        if (ar.succeeded()) {
-          JsonObject response = ar.result().body();
-          logger.info("response = {}", response.encodePrettily());
-        } else {
-          ar.cause().printStackTrace();
+              .as(BodyCodec.jsonObject())
+              .sendJsonObject(request, ar -> {
+                if (ar.succeeded()) {
+                  response.complete(ar.result().body());
+                  logger.info("response = {}", ar.result().body().encodePrettily());
+                } else {
+                  response.completeExceptionally(ar.cause());
+                }
+              });
+      response.whenComplete((tResponse, throwable) -> {
+        if (response.isCancelled()) {
+          response.cancel(true);
         }
       });
+      return response.get();
+    } catch (InterruptedException | ExecutionException e) {
+      return new JsonObject().put("Error", e.getMessage());
+    }
   }
+
 
   static class GraphqlPayloadBuilder{
 
